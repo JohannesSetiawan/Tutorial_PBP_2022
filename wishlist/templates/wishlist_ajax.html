@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+<style>
+  body {
+    background-color: rgb(150, 255, 0);
+  }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+
+  function loadData(){
+    $('.tabel_barang').empty();
+    $.get("/wishlist/json/", function(data){
+      var data_barang = '<tr>\n' +
+              '          <th>Nama Barang</th>\n' +
+              '          <th>Harga Barang</th>\n' +
+              '          <th>Deskripsi</th>\n' +
+              '        </tr>';
+      $.each(data, function(key, value){
+        data_barang += '<tr>';
+        data_barang += '<td>'+value.fields.nama_barang+'</td>';
+        data_barang += '<td>'+value.fields.harga_barang+'</td>';
+        data_barang += '<td>'+value.fields.deskripsi+'</td>';
+        data_barang += '<tr>';
+      });
+      $('.tabel_barang').append(data_barang);
+    });
+  }
+
+    $(document).ready(function(){
+      loadData();
+  });
+
+    $(document).on('submit', '#form-barang',function(e){
+      e.preventDefault();
+      $.ajax({
+        type:'POST',
+        url:'submit/',
+        data:{
+          nama_barang:$('#nama_barang').val(),
+          harga_barang:$('#harga_barang').val(),
+          deskripsi:$('#deskripsi').val(),
+          csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+          action: 'post'
+        },
+        success:function(data){
+          document.getElementById("form-barang").reset();
+          loadData();
+        },
+      });
+    });
+</script>
+
+
+{% endblock meta %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg" style="background-color: #e5f8ff;">
+  <div class="container-fluid">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="navbar-brand">Johannes Setiawan</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-outline-secondary" role="button" href="{% url 'wishlist:logout' %}">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      </br>
+      <h5>Nama: </h5>
+      <p>{{nama}}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <table class ="tabel_barang" border="2">
+
+        {% comment %} Tambahkan data di bawah baris ini {% endcomment %}
+
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      </br>
+      <h5>Sesi terakhir login: {{ last_login }}</h5>
+    </div>
+  </div>
+
+<br>
+
+  <h4> Form Nambah Barang !!!! </h4>
+  <form id="form-barang" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      <label>Nama Barang: </label>
+      <input name="nama_barang" id="nama_barang" type="text" class="form-control" placeholder="Masukkan nama barang">
+    </div>
+    <div class="form-group">
+      <label>Harga Barang: </label>
+      <input name="harga_barang" id="harga_barang" type="text" class="form-control" placeholder="Masukkan harga barang (e.g. 170000)">
+    </div>
+    <div class="form-group">
+      <label>Deskripsi Barang: </label>
+      <input name="deskripsi" id="deskripsi" type="text" class="form-control" placeholder="Masukkan deskripsi barang">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+  <div class="row">
+    <div class="col">
+      </br>
+      <button><a href="{% url 'wishlist:logout' %}">Logout</a></button>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+{% endblock content %}
